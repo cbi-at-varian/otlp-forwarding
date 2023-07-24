@@ -1,15 +1,6 @@
 version: "3.7"
 
 services:
-  synthetic-load-generator:
-    image: omnition/synthetic-load-generator:1.0.29
-    volumes:
-      - ./load-generator.json:/etc/load-generator.json
-    environment:
-      - TOPOLOGY_FILE=/etc/load-generator.json
-      - JAEGER_COLLECTOR_URL=http://tempo:14268
-    depends_on:
-      - tempo
 
   webapp:
     build: ./otlp-producer
@@ -22,7 +13,7 @@ services:
       - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
 
   fluent-bit:
-    image: fluent/fluent-bit
+    image: fluent/fluent-bit:2.1.7-debug
     volumes:
       - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
     ports:
@@ -31,7 +22,7 @@ services:
       - tempo
 
   tempo:
-    image: grafana/tempo:latest
+    image: grafana/tempo:2.1.1
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./tempo-local.yaml:/etc/tempo.yaml
@@ -43,7 +34,7 @@ services:
       - "4318:4318"  # otlp http
       - "9411:9411"   # zipkin
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.45.0
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver

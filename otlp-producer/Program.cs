@@ -11,13 +11,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // add opentelemetry instrumentation
-builder.Services.AddOpenTelemetryTracing(
-        (builder) => builder
-            .SetResourceBuilder(ResourceBuilder.CreateDefault()
-                .AddService("ServiceA"))
-            .AddAspNetCoreInstrumentation()
-            .AddConsoleExporter()
-            .AddOtlpExporter());
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(resource => resource
+        .AddService(serviceName: builder.Environment.ApplicationName))
+    .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation()
+        .AddConsoleExporter()
+        .AddOtlpExporter());
 
 var app = builder.Build();
 
